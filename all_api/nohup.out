@@ -1,0 +1,91 @@
+>>>>>>>>>ANSWER>>>>>>>>>>>>> France is a country located in Europe. It is known for its rich history, culture, and cuisine. France is also famous for landmarks such as the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral. (out of context)
+ * Serving Flask app 'api_ans_store_embedding'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7072
+ * Running on http://164.52.195.88:7072
+[33mPress CTRL+C to quit[0m
+113.193.119.17 - - [15/Jul/2024 19:16:58] "OPTIONS /pdf_query HTTP/1.1" 200 -
+113.193.119.17 - - [15/Jul/2024 19:16:58] "OPTIONS /submit HTTP/1.1" 200 -
+113.193.119.17 - - [15/Jul/2024 19:16:58] "[35m[1mPOST /pdf_query HTTP/1.1[0m" 500 -
+[2024-07-15 19:16:58,128] ERROR in app: Exception on /submit [POST]
+Traceback (most recent call last):
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/cursor_cext.py", line 372, in execute
+    result = self._cnx.cmd_query(
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 111, in wrapper
+    result = method(cnx, *args, **kwargs)
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/connection_cext.py", line 719, in cmd_query
+    return self.fetch_eof_status()
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/connection_cext.py", line 626, in fetch_eof_status
+    "insert_id": self._cmysql.insert_id(),
+_mysql_connector.MySQLInterfaceError: Lost connection to MySQL server during query
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "api_ans_store_embedding.py", line 85, in submit
+    cursor.execute(query)
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/cursor_cext.py", line 379, in execute
+    raise get_mysql_exception(
+mysql.connector.errors.OperationalError: 2013 (HY000): Lost connection to MySQL server during query
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/connection_cext.py", line 697, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: Lost connection to MySQL server during query
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/flask_cors/extension.py", line 178, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "api_ans_store_embedding.py", line 104, in submit
+    cursor.execute(query)
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/cursor_cext.py", line 372, in execute
+    result = self._cnx.cmd_query(
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 111, in wrapper
+    result = method(cnx, *args, **kwargs)
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/connection_cext.py", line 705, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.OperationalError: 2013 (HY000): Lost connection to MySQL server during query
+113.193.119.17 - - [15/Jul/2024 19:16:58] "[35m[1mPOST /submit HTTP/1.1[0m" 500 -
+llllllllllllllllllllll {'email': 'user9001@gmail.com', 'phone': '87655799', 'sessionID': '367201b1-5664-4f7b-a74e-5b4a2ebfd4fe', 'sessionINTime': '2024-07-16 00:46:43', 'optionName': 'Cloud Services'}
+here1
+dataaaaaaaaaaaaaaa0 {'question': 'hello', 'sessionID': '367201b1-5664-4f7b-a74e-5b4a2ebfd4fe'}
+user is already register
+>>>>>>>>>ANSWER>>>>>>>>>>>>> France is a country located in Europe. It is known for its rich history, culture, and cuisine. France is also famous for landmarks such as the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral. (out of context)
+Traceback (most recent call last):
+  File "api_ans_store_embedding.py", line 13, in <module>
+    import mysql.connector
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/__init__.py", line 73, in <module>
+    from .pooling import connect
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/mysql/connector/pooling.py", line 43, in <module>
+    import dns.resolver
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/dns/resolver.py", line 30, in <module>
+    import dns._ddr
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/dns/_ddr.py", line 12, in <module>
+    import dns.nameserver
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/dns/nameserver.py", line 5, in <module>
+    import dns.asyncquery
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/dns/asyncquery.py", line 30, in <module>
+    import dns.message
+  File "/home/ubuntu/workspace/sanketp/sty_chatbot/styenv/lib/python3.8/site-packages/dns/message.py", line 36, in <module>
+    import dns.rdtypes.ANY.OPT
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 844, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 976, in get_code
+  File "<frozen importlib._bootstrap_external>", line 640, in _compile_bytecode
+KeyboardInterrupt

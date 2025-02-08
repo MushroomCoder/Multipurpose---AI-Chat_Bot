@@ -1,0 +1,154 @@
+[
+    {
+        "question": "Tell me more about your company?",
+        "answer": "We are a Data Science company at core. We partner with our clients to build AI and Data Powered solutions. With over 100 AI & Data Powered solutions delivered to our Clients, we have a proven expertise. Our Clients are based in India, US, UK, Singapore, Netherlands and Middle-East. Our Head office is in Pune, India. We also have offices in London, U.K and Delaware, U.S."
+    },
+    {
+        "question": "What do you do in Data Science?",
+        "answer": "Data Science is a vast area. We mainly focus on Applied Data Science. That includes developing custom AI Models on structured and un-structured data. Our expertise is in Computer Vision, Deep Learning, Natural Language Processing, Machine Learning, Recommender Systems, Statistical Modelling, Generative AI and Re-enforcement learning. We use the power of AI to automate manual business workflows."
+    },
+    {
+        "question": "What do you do in Data Analytics?",
+        "answer": "Organizations need solutions to make informed business decisions. In Data Analytics, we build the underlining data integration layer to get rid of data silos. On the integrated data, we develop Data visualization layer to give unprecedented insights to business leaders to make business decisions."
+    },
+    {
+        "question": "What do you do in Big Data?",
+        "answer": "We have proven expertise in dealing with massive data at scale. Our expertise are Data Integration, Data Migration, Developing ETL or ELT data pipelines, Streaming Data Pipelines, Data Warehousing, Data Lakesand Data Lakehouse. We build scalable data solutions considering the future data growth and business demands."
+    },
+    {
+        "question": "Do you have expertise in Generative AI? Or Have you done any work in Generative AI?",
+        "answer": "Generative AI is one of our core expertise. Using LLM's we have built applications to improve Customer Support Operations,Operational Efficiency and Sales. We use Open AI’s GTP 4o, GPT 4.5, Llama 3.0 etc to build cloud agnostic Generative AI solutions."
+    },
+    {
+        "question": "Which tools do you use to develop AI Models? Or which tools do you use for Machine Learning?",
+        "answer": "We mainly use Python based ML libraries to build or customize the models. Some of the tools are Keras, Tensorflow, Pytorch, Scikit etc. We also have equal expertise on Azure and AWS AI Stack."
+    },
+    {
+        "question": "Which tools do you use for Big Data?",
+        "answer": "We mainly use Python, Spark, Kafka, Azure Data Factory, Databricks and Snowflake to build Big Data solutions"
+    },
+    {
+        "question": "Which cloud platform expertise do you have?",
+        "answer": "Our Cloud platform expertise are in AWS, Azure and IBM cloud."
+    },
+    {
+        "question": "Are you a partner for any leading Cloud Provider?",
+        "answer": "Yes, we have Partnership with AES, Azure and IBM Cloud Have you done any work on Azure Data Factory(ADF)?"
+    },
+    {
+        "question": "Have you done any work on Databricks? Or Do you have expertise in Databricks?",
+        "answer": "Yes, we have done multiple projects using Databricks. Please refer to our success stories on our website."
+    },
+    {
+        "question": "Have you done any work on Snowflake? Or Do you have expertise in Snowflake?",
+        "answer": "Yes, we have done multiple projects using Snowflake.Please refer to our success stories on our website."
+    },
+    {
+        "question": "Which cloud services do you provide?",
+        "answer": "Our Cloud services include on-premise to Cloud migration, cloud to cloud migration, cloud cost optimization, cloud infrastructure management, cloud security, application re-architecting by using cloud native components"
+    },
+    {
+        "question": "Which Dev Ops tools you have expertise on?",
+        "answer": "We work on tools like Ansible, Terraform, Jenkins, Docker, Kubernetes etc."
+    },
+    {
+        "question": "Have you done any work on Cloud Migration?",
+        "answer": "Yes, we have done multiple projects on Cloud Migration. Please refer to our success stories on our website."
+    },
+    {
+        "question": "Do you have expertise in Legacy Application Modernization?",
+        "answer": "Yes, we have done multiple projects on Legacy Application Modernization. Please refer to our success stories on our website."
+    },
+    {
+        "question": "Do you do product engineering? Or do you develop applications?",
+        "answer": "Yes, we do product engineering. We partner with our clients at each stage of the product engineering. Right from ideation to deployment, we cover all the stages. Once the product is deployed to productions, we maintain the complete life cycle of the product,includingt he infrastructure management."
+    },
+    {
+        "question": "Have you done any work on Service Desk Automation?",
+        "answer": "Yes, we have donemultiple projects on Service Desk Automation.Please refer to our success stories on our website."
+    },
+    {
+        "question": "Do you have any solutions for Customer Supporto or Customer Experience improvement?",
+        "answer": "Yes, we have proven solutions to improve Customer Support operations. Please refer to our success stories on our website."
+    },
+    {
+        "question": "Do you develop chatbots?",
+        "answer": "Yes, we build Conversational BOTs using Large Language Models like Llama3.0 or GPT4o/mini."
+    },
+    {
+        "question": "What are the different engagement models you work?",
+        "answer": "Our engagement models are simple. We work on Time & Material based or Fixed cost engagement model."
+    },
+    {
+        "question": "Do you work on fixed cost projects?",
+        "answer": "Yes, we work on fixed  cost projects if the scope of the work is clearly defined."
+    },
+    {
+        "question": "Have you done any work for Banking, Insurance,Asset Management or Fin Tech's?",
+        "answer": "We have developed some of the advanced AI & Data solutions for these industry segments. Please check our website for the success stories."
+    },
+    {
+        "question": "Have you done any workf or Manufacturing?",
+        "answer": "We have developed some of the advanced AI & Data solutions for Manufacturing Industry segments. It includes solutions like Predictive Maintenance, Defect detection,Data Fusion, IoT, Chatbots etc. Pleasecheckourwebsiteforsuccessstories"
+    },
+    {
+        "question": "Have you done any work for Media and Entertainment?",
+        "answer": "We have developed some of the advanced AI & Data solutions for these industry segments. Please check our website for the success stories."
+    },
+    {
+        "question": "Have you done any work for Healthcare Industry?",
+        "answer": "We have developed some of the advanced AI & Data solutions for this industry segments. Please check our website for the success stories."
+    },
+    {
+        "question": "Have you done any work for Telecom Industry?",
+        "answer": "We have developed some of thea dvanced AI & Data solutions for this industry segments. Please checkourwebsiteforthesuccessstories."
+    },
+    {
+        "question": "Have you done any work for Pharma and Life Sciences Industry?",
+        "answer": "We have developed some of the advanced AI & Data solutions for these industry segments. Please check our website for the success stories."
+    },
+    {
+        "question": "Have you done any work for Retail and Ecommerce Industry?",
+        "answer": "We have developed some of the advanced AI & Data solutions for these industry segments. Please check our website for the success stories."
+    },
+    {
+        "question": "Have you done any work for CPG or FMCG Industry?",
+        "answer": "We have developed some of the advanced AI & Data solutions for these industry segments. Please check our website for the success stories."
+    },
+
+    {
+        "question": "What services do you provide?",
+        "answer" : "Our company specializes in services such as data analytics, cloud computing, generative AI, and MLOps to optimize operations, drive digital transformation, and create innovative solutions. We ensure regulatory compliance to maintain standards and avoid penalties, delivering value and success to our clients."
+    },
+
+    {
+        "question": "hi",
+        "answer": "Hey there! How can I assist you today?"
+    },
+    {
+        "question": "hello",
+        "answer": "Hey there! How can I assist you today?"
+    },
+    {
+        "question": "how are you?",
+        "answer": "I'm doing great, thank you! How about you?"
+    },
+    {
+        "question": "good morning",
+        "answer": "Good Morning! How's everything going?"
+    },
+    {
+        "question": "who are you?",
+        "answer": "I'm an AI Assistant crafted at Shyena Tech Yarns Pvt. Ltd. I'm here to assist you with questions you have regarding our company. How can I help you today?"
+    },
+
+    {
+        "question" : "What is Shyena Tech Yarns?",
+        "answer" : "We are a Data Science company at core. We partner with our clients to build AI and Data Powered solutions.With over 100 AI & Data Powered solutions delivered to our Clients,we have a proven expertise. Our Clients are based in India,US,UK,Singapore,Netherlandsand Middle East. Our Head office is in Pune,India. We also have offices in London,UK and Delaware,U S."
+    },
+
+    {
+        "question" : "Which are the sifferent types of Industries you have served?",
+        "answer" : "We are working with industries like Healthcare, Retail and eCommerce, Finance and Insurance, Manufacturing, etc. For more information please visit to our official website."
+    }
+]

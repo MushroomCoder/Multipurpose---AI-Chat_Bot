@@ -1,0 +1,597 @@
+# import os
+# import sys
+# import sqlite3
+# import asyncio
+# from datetime import datetime
+# import mysql.connector
+# from flask import Flask, request, jsonify
+# from flask_cors import CORS
+# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.core import SimpleDirectoryReader
+# from llama_index.vector_stores.chroma import ChromaVectorStore
+# from llama_index.llms.ollama import Ollama
+# from sentence_transformers import SentenceTransformer, util
+# import chromadb
+# import json
+
+# # Initialize Flask application
+# app = Flask(__name__)
+# CORS(app)  # Allow Cross-Origin requests
+
+# # MySQL Database connection setup
+# db_config = {
+#     "host": "164.52.195.88",
+#     "user": "root",
+#     "password": "Unknown!345",
+#     "database": "chatbot_db",
+#     "port": "3312"
+# }
+
+# # SQLite Database setup
+# sqlite_db_path = 'your_sqlite_db_path.db'
+# conn = sqlite3.connect(sqlite_db_path)
+# cursor = conn.cursor()
+
+# # Initialize models
+# embedding_model_name = "BAAI/bge-small-en-v1.5"
+# embed_model = HuggingFaceEmbedding(model_name=embedding_model_name)
+# llm = Ollama(model="llama3.2:1b")
+# semantic_model = SentenceTransformer("all-MiniLM-L6-v2")  # For Q&A semantic search
+
+# # Define paths for Chroma and Q&A document
+# CHROMA_STORAGE_PATH = "/home/user/Desktop/copy/meta-llama-Llama-3.2-1B/final_vectordb"
+# QNA_DOCUMENT_PATH = "/home/user/Desktop/copy/meta-llama-Llama-3.2-1B/Q&A.json"
+
+# # Define the prompt template
+# PROMPT_TEMPLATE = """
+# You are an AI Assistant representing Shyena Tech Yarns Pvt. Ltd., a data-science company. 
+# Your role is to provide concise and accurate responses strictly based on company data stored in the vector database and Q&A document. 
+# Provide a clear, plain response and do not mention the reference of vector database and Q&A document.
+
+# Previous Conversations:
+# {chat_history}
+
+# Question: {question}
+# Answer:
+# """
+
+# # Load Q&A document
+# def load_qna_document(path):
+#     with open(path, "r") as file:
+#         return json.load(file)
+
+# # Load index from Chroma VectorStore
+# def load_index_from_chroma_vectorstore(storage_path):
+#     try:
+#         db = chromadb.PersistentClient(path=storage_path)
+#         collection_name = "knowledge_base"
+#         chroma_collection = db.get_or_create_collection(collection_name)
+#         chroma_vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+#         index = VectorStoreIndex.from_vector_store(vector_store=chroma_vector_store)
+#         return index
+#     except Exception as e:
+#         raise RuntimeError(f"Failed to load Chroma VectorStore: {e}")
+
+# # Q&A semantic search
+# def find_similar_qna(query, qna_data, threshold=0.7):
+#     questions = [item["question"] for item in qna_data]
+#     query_embedding = semantic_model.encode(query, convert_to_tensor=True)
+#     question_embeddings = semantic_model.encode(questions, convert_to_tensor=True)
+#     scores = util.pytorch_cos_sim(query_embedding, question_embeddings).squeeze()
+#     best_match_idx = scores.argmax()
+#     if scores[best_match_idx] >= threshold:
+#         return qna_data[best_match_idx]["answer"]
+#     return None
+
+# # Function to process and store documents in Chroma (from Code-1)
+# def process_documents(directory_path):
+#     documents = SimpleDirectoryReader(directory_path).load_data()
+#     doc_texts = [doc.text for doc in documents]
+#     embeddings = [embed_model.get_text_embedding(doc) for doc in doc_texts]
+
+#     # Initialize Chroma PersistentClient
+#     persist_directory = '/home/user/Desktop/meta-llama-Llama-3.2-1B/final_vectordb'
+#     chroma_client = chromadb.PersistentClient(path=persist_directory)
+    
+#     collection = chroma_client.get_or_create_collection(name="knowledge_base")
+
+#     # Add documents and embeddings to Chroma collection
+#     for i, (doc, emb) in enumerate(zip(doc_texts, embeddings)):
+#         collection.add(
+#             embeddings=[emb],  # embeddings as a list
+#             documents=[doc],  # documents as a list
+#             metadatas=[{"source": "file"}],  # Example metadata, can be customized
+#             ids=[str(i)]  # Unique ID for each document
+#         )
+
+#     return collection
+
+# # Function to store embeddings in Chroma (from Code-1)
+# def store_embeddings_in_chroma(directory_path):
+#     collection = process_documents(directory_path)
+#     return collection
+
+# # Synthesize response using prompt-template (from Code-2)
+# def synthesize_response_with_prompt(query, chunks, chat_history):
+#     if not chunks:
+#         return "I'm sorry, I couldn't find relevant information in the database."
+
+#     retrieved_text = " ".join([chunk.text.strip() for chunk in chunks if chunk.text])
+
+#     response_input = PROMPT_TEMPLATE.format(chat_history=chat_history, question=query) + retrieved_text
+
+#     try:
+#         response = llm.complete(prompt=response_input)
+#         if hasattr(response, "content"):
+#             return response.content.strip()
+#         return str(response).strip()
+#     except Exception as e:
+#         return "I'm sorry, I encountered an issue generating the response."
+
+# # Check if the query is domain-related
+# def is_valid_query(query):
+#     valid_keywords = ["company", "services", "products", "Shyena Tech Yarns", "data science"]
+#     return any(keyword in query.lower() for keyword in valid_keywords)
+
+# # Chatbot interaction loop
+# async def query_chatbot(index, qna_data):
+#     chat_history = []  # Initialize chat history
+
+#     while True:
+#         query = input("Enter your query (or type 'exit' to quit): ").strip()
+#         if query.lower() == "exit":
+#             print("Exiting chatbot. Goodbye!")
+#             break
+#         if not query:
+#             print("Empty query. Please try again.")
+#             continue
+
+#         # Search the Q&A document
+#         qna_response = find_similar_qna(query, qna_data)
+#         if qna_response:
+#             chat_history.append(f"User: {query}\nAssistant: {qna_response}")
+#             print(f"Assistant: {qna_response}")
+#             continue
+
+#         if not is_valid_query(query):
+#             generic_response = "I'm sorry, I can't respond to that."
+#             chat_history.append(f"User: {query}\nAssistant: {generic_response}")
+#             print(f"Assistant: {generic_response}")
+#             continue
+
+#         try:
+#             query_engine = index.as_query_engine()
+#             response_chunks = query_engine.retrieve(query)
+#             response = synthesize_response_with_prompt(query, response_chunks, "\n".join(chat_history))
+#             chat_history.append(f"User: {query}\nAssistant: {response}")
+#             print(f"Assistant: {response}")
+#         except Exception as e:
+#             error_response = "I'm sorry, I encountered an issue generating the response."
+#             chat_history.append(f"User: {query}\nAssistant: {error_response}")
+#             print(f"Error during query execution: {e}")
+
+# # Flask route to interact with the chatbot
+# @app.route('/chatbot', methods=['POST'])
+# async def chatbot():
+#     try:
+#         # Parse input JSON data
+#         user_query = request.json.get("query")
+#         qna_data = load_qna_document(QNA_DOCUMENT_PATH)
+#         index = load_index_from_chroma_vectorstore(CHROMA_STORAGE_PATH)
+        
+#         if not user_query:
+#             return jsonify({"error": "Empty query, please provide a valid query."}), 400
+
+#         chat_history = []  # Initialize chat history
+#         qna_response = find_similar_qna(user_query, qna_data)
+        
+#         if qna_response:
+#             chat_history.append(f"User: {user_query}\nAssistant: {qna_response}")
+#             return jsonify({"response": qna_response})
+
+#         if not is_valid_query(user_query):
+#             generic_response = "I'm sorry, I can't respond to that."
+#             chat_history.append(f"User: {user_query}\nAssistant: {generic_response}")
+#             return jsonify({"response": generic_response})
+
+#         query_engine = index.as_query_engine()
+#         response_chunks = query_engine.retrieve(user_query)
+#         response = synthesize_response_with_prompt(user_query, response_chunks, "\n".join(chat_history))
+        
+#         chat_history.append(f"User: {user_query}\nAssistant: {response}")
+#         return jsonify({"response": response})
+
+#     except Exception as e:
+#         return jsonify({"error": f"Failed to process query: {str(e)}"}), 500
+
+# # Run the Flask application
+# if __name__ == '__main__':
+#     app.run(debug=True, port=7072, host="0.0.0.0")
+
+import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS  # Importing CORS
+import mysql.connector
+from mysql.connector import pooling
+import asyncio
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from chromadb import PersistentClient
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.core import SimpleDirectoryReader
+from llama_index.llms.ollama import Ollama
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.core import VectorStoreIndex
+from sentence_transformers import SentenceTransformer, util
+import json
+
+# MySQL Connection Pooling Setup
+dbconfig = {
+    "host": "164.52.195.88",
+    "user": "root",
+    "password": "Unknown!345",
+    "database": "chatbot_db",
+    "port": "3312"
+}
+pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **dbconfig)
+
+# Flask App Setup
+app = Flask(__name__)
+CORS(app)  # Enable CORS for the entire application
+
+# Initialize HuggingFace embedding model
+embedding_model_name = "BAAI/bge-small-en-v1.5"
+embed_model = HuggingFaceEmbedding(model_name=embedding_model_name)
+
+# Initialize Chroma PersistentClient
+persist_directory = '/home/user/Desktop/meta-llama-Llama-3.2-1B/final_vectordb'
+chroma_client = PersistentClient(path=persist_directory)
+
+# Function to process and store documents in Chroma
+def process_documents(directory_path):
+    documents = SimpleDirectoryReader(directory_path).load_data()
+    doc_texts = [doc.text for doc in documents]
+    
+    embeddings = [embed_model.get_text_embedding(doc) for doc in doc_texts]
+    collection = chroma_client.get_or_create_collection(name="knowledge_base")
+
+    for i, (doc, emb) in enumerate(zip(doc_texts, embeddings)):
+        collection.add(
+            embeddings=[emb],
+            documents=[doc],
+            metadatas=[{"source": "file"}],
+            ids=[str(i)]
+        )
+
+    return collection
+
+# Function to store embeddings in Chroma
+def store_embeddings_in_chroma(directory_path):
+    collection = process_documents(directory_path)
+    return collection
+
+# Load Q&A data
+def load_qna_document(path):
+    with open(path, "r") as file:
+        return json.load(file)
+
+# Initialize Ollama LLM and Sentence Transformer
+llm = Ollama(model="llama3.2:1b")
+semantic_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Load index from Chroma VectorStore
+def load_index_from_chroma_vectorstore(storage_path):
+    try:
+        db = chromadb.PersistentClient(path=storage_path)
+        collection_name = "knowledge_base"
+        chroma_collection = db.get_or_create_collection(collection_name)
+        chroma_vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+        index = VectorStoreIndex.from_vector_store(vector_store=chroma_vector_store)
+        return index
+    except Exception as e:
+        raise RuntimeError(f"Failed to load Chroma VectorStore: {e}")
+
+# Define the prompt template for response synthesis
+PROMPT_TEMPLATE = """
+You are an AI Assistant representing Shyena Tech Yarns Pvt. Ltd., a data-science company. 
+Your role is to provide concise and accurate responses strictly based on company data stored in the vector database and Q&A document. 
+Provide a clear, plain response and do not mention the reference of vector database and Q&A document.
+
+Previous Conversations:
+{chat_history}
+
+Question: {question}
+Answer:
+"""
+
+# Function to generate response based on query and retrieved chunks
+async def get_conversational_chain(question, index, qna_data, chat_history):
+    # Semantic Search for Q&A
+    qna_response = find_similar_qna(question, qna_data)
+    if qna_response:
+        chat_history.append(f"User: {question}\nAssistant: {qna_response}")
+        return qna_response
+    
+    query_engine = index.as_query_engine()
+    response_chunks = query_engine.retrieve(question)
+    response = synthesize_response_with_prompt(question, response_chunks, "\n".join(chat_history))
+    chat_history.append(f"User: {question}\nAssistant: {response}")
+    return response
+
+# Q&A Semantic Search function
+def find_similar_qna(query, qna_data, threshold=0.7):
+    questions = [item["question"] for item in qna_data]
+    query_embedding = semantic_model.encode(query, convert_to_tensor=True)
+    question_embeddings = semantic_model.encode(questions, convert_to_tensor=True)
+    scores = util.pytorch_cos_sim(query_embedding, question_embeddings).squeeze()
+    best_match_idx = scores.argmax()
+    if scores[best_match_idx] >= threshold:
+        return qna_data[best_match_idx]["answer"]
+    return None
+
+# Synthesize response using prompt-template
+def synthesize_response_with_prompt(query, chunks, chat_history):
+    if not chunks:
+        return "I'm sorry, I couldn't find relevant information in the database."
+
+    retrieved_text = " ".join([chunk.text.strip() for chunk in chunks if chunk.text])
+    response_input = PROMPT_TEMPLATE.format(chat_history=chat_history, question=query) + retrieved_text
+
+    try:
+        response = llm.complete(prompt=response_input)
+        if hasattr(response, "content"):
+            return response.content.strip()
+        return str(response).strip()
+    except Exception as e:
+        return "I'm sorry, I encountered an issue generating the response."
+
+# Flask Routes
+@app.route('/pdf_upload', methods=['POST'])
+def pdf_upload():
+    data = request.get_json()
+    pdf_path = data.get('pdf_path')
+    
+    # Replacing chunk_embed with process_documents from code-1
+    collection = store_embeddings_in_chroma(pdf_path)
+    
+    return jsonify({"message": f"PDF uploaded and vector database updated at {persist_directory}."}), 200
+
+# @app.route('/pdf_query', methods=['POST'])
+# async def pdf_query():
+#     data = request.get_json()
+#     question = data.get('question')
+#     sessionID = data.get('sessionID')
+    
+#     # Retrieve session data
+#     conn = pool.get_connection()
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT session_no FROM session_data WHERE sessionID = %s", (sessionID,))
+#     session_no = cursor.fetchone()
+    
+#     if session_no:
+#         # Load index from Chroma VectorStore
+#         index = load_index_from_chroma_vectorstore(persist_directory)
+#         qna_data = load_qna_document("/home/user/Desktop/copy/meta-llama-Llama-3.2-1B/Q&A.json")  # Adjust path
+#         chat_history = []  # Initialize chat history
+        
+#         # Get the conversational chain (async)
+#         response = await get_conversational_chain(question, index, qna_data, chat_history)
+#         cursor.close()
+#         conn.close()
+#         return jsonify({"answer": response}), 200
+    
+#     cursor.close()
+#     conn.close()
+#     return jsonify({"error": "Session not found."}), 404
+
+@app.route('/pdf_query', methods=['POST'])
+async def pdf_query():
+    # Ensure th# import os
+# import sys
+# import sqlite3
+# import asyncio
+# from datetime import datetime
+# import mysql.connector
+# from flask import Flask, request, jsonify
+# from flask_cors import CORS
+# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.core import SimpleDirectoryReader
+# from llama_index.vector_stores.chroma import ChromaVectorStore
+# from llama_index.llms.ollama import Ollama
+# from sentence_transformers import SentenceTransformer, util
+# import chromadb
+# import json
+
+# # Initialize Flask application
+# app = Flask(__name__)
+# CORS(app)  # Allow Cross-Origin requests
+
+# # MySQL Database connection setup
+# db_config = {
+#     "host": "164.52.195.88",
+#     "user": "root",
+#     "password": "Unknown!345",
+#     "database": "chatbot_db",
+#     "port": "3312"
+# }
+
+# # SQLite Database setup
+# sqlite_db_path = 'your_sqlite_db_path.db'
+# conn = sqlite3.connect(sqlite_db_path)
+# cursor = conn.cursor()
+
+# # Initialize models
+# embedding_model_name = "BAAI/bge-small-en-v1.5"
+# embed_model = HuggingFaceEmbedding(model_name=embedding_model_name)
+# llm = Ollama(model="llama3.2:1b")
+# semantic_model = SentenceTransformer("all-MiniLM-L6-v2")  # For Q&A semantic search
+
+# # Define paths for Chroma and Q&A document
+# CHROMA_STORAGE_PATH = "/home/user/Desktop/copy/meta-llama-Llama-3.2-1B/final_vectordb"
+# QNA_DOCUMENT_PATH = "/home/user/Desktop/copy/meta-llama-Llama-3.2-1B/Q&A.json"
+
+# # Define the prompt template
+# PROMPT_TEMPLATE = """
+# You are an AI Assistant representing Shyena Tech Yarns Pvt. Ltd., a data-science company. 
+# Your role is to provide concise and accurate responses strictly based on company data stored in the vector database and Q&A document. 
+# Provide a clear, plain response and do not mention the reference of vector database and Q&A document.
+
+# Previous Conversations:
+# {chat_history}
+
+# Question: {question}
+# Answer:
+# """
+
+# # Load Q&A document
+# def load_qna_document(path):
+#     with open(path, "r") as file:
+#         return json.load(file)
+
+# # Load index from Chroma VectorStore
+# def load_index_from_chroma_vectorstore(storage_path):
+#     try:
+#         db = chromadb.PersistentClient(path=storage_path)
+#         collection_name = "knowledge_base"
+#         chroma_collection = db.get_or_create_collection(collection_name)
+#         chroma_vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+#         index = VectorStoreIndex.from_vector_store(vector_store=chroma_vector_store)
+#         return index
+#     except Exception as e:
+#         raise RuntimeError(f"Failed to load Chroma VectorStore: {e}")
+
+# # Q&A semantic search
+# def find_similar_qna(query, qna_data, threshold=0.7):
+#     questions = [item["question"] for item in qna_data]
+#     query_embedding = semantic_model.encode(query, convert_to_tensor=True)
+#     question_embeddings = semantic_model.encode(questions, convert_to_tensor=True)
+#     scores = util.pytorch_cos_sim(query_embedding, question_embeddings).squeeze()
+#     best_match_idx = scores.argmax()
+#     if scores[best_match_idx] >= threshold:
+#         return qna_data[best_match_idx]["answer"]
+#     return None
+
+# # Function to process and store documents in Chroma (from Code-1)
+# def process_documents(directory_path):
+#     documents = SimpleDirectoryReader(directory_path).load_data()
+#     doc_texts = [doc.text for doc in documents]
+#     embeddings = [embed_model.get_text_embedding(doc) for doc in doc_texts]
+
+#     # Initialize Chroma PersistentClient
+#     persist_directory = '/home/user/Desktop/meta-llama-Llama-3.2-1B/final_vectordb'
+#     chroma_client = chromadb.PersistentClient(path=persist_directory)
+    
+#     collection = chroma_client.get_or_create_collection(name="knowledge_base")
+
+#     # Add documents and embeddings to Chroma collection
+#     for i, (doc, emb) in enumerate(zip(doc_texts, embeddings)):
+#         collection.add(
+#             embeddings=[emb],  # embeddings as a list
+#             documents=[doc],  # documents as a list
+#             metadatas=[{"source": "file"}],  # Example metadata, can be customized
+#             ids=[str(i)]  # Unique ID for each document
+#         )
+
+#     return collection
+
+# # Function to store embeddings in Chroma (from Code-1)
+# def store_embeddings_in_chroma(directory_path):
+#     collection = process_documents(directory_path)
+#     return collection
+
+# # Synthesize response using prompt-template (from Code-2)
+# def synthesize_response_with_prompt(query, chunks, chat_history):
+#     if not chunks:
+#         return "I'm sorry, I couldn't find relevant information in the database."
+
+#     retrieved_text = " ".join([chunk.text.strip() for chunk in chunks if chunk.text])
+
+#     response_input = PROMPT_TEMPLATE.format(chat_history=chat_history, question=query) + retrieved_text
+
+#     try:
+#         response = llm.complete(prompt=response_input)
+#         if hasattr(response, "content"):
+#             return response.content.strip()
+#         return str(response).strip()
+#     except Exception as e:
+#         return "I'm sorry, I encountered an issue generating the response."
+
+# # Check if the query is domain-related
+# def is_valid_query(query):
+#     valid_keywords = ["company", "services", "products", "Shyena Tech Yarns", "data science"]
+#     return any(keyword in query.lower() for keyword in valid_keywords)
+
+# # Chatbot interaction loop
+# async def query_chatbot(index, qna_data):
+#     chat_history = []  # Initialize chat history
+
+#     while True:
+#         query = input("Enter your query (or type 'exit' to quit): ").strip()
+#         if query.lower() == "exit":
+#             print("Exiting chatbot. Goodbye!")
+#             break
+#         if not query:
+#             print("Empty query. Please try again.")
+#             continue
+
+#         # Search the Q&A document
+#         qna_response = find_similar_qna(query, qna_data)
+#         if qna_response:
+#             chat_history.append(f"User: {query}\nAssistant: {qna_response}")
+#             print(f"Assistant: {qna_response}")
+#             continue
+
+#         if not is_valid_query(query):
+#             generic_response = "I'm sorry, I can't respond to that."
+#             chat_history.append(f"User: {query}\nAssistant: {generic_response}")
+#             print(f"Assistant: {generic_response}")
+#             continue
+
+#         try:
+#             query_engine = index.as_query_engine()
+#             response_chunks = query_engine.retrieve(query)
+#             response = synthesize_response_with_prompt(query, response_chunks, "\n".join(chat_history))
+#             chat_history.append(f"User: {query}\nAssistant: {response}")
+#             print(f"Assistant: {response}")
+#         except Exception as e:
+#             error_response = "I'm sorry, I encountered an issue generating the response."
+#             chat_history.append(f"User: {query}\nAssistant: {error_response}")
+#             print(f"Error during query execution: {e}")
+
+# # Flask route to interact with the chatbot
+# @app.route('/chatbot', methods=['POST'])
+# async def chatbot():
+#     try:
+#         # Parse input JSON data
+#         user_query = request.json.get("query")
+#         qna_data = load_qna_document(QNA_DOCUMENT_PATH)
+#         index = load_index_from_chroma_vectorstore(CHROMA_STORAGE_PATH)
+        
+#         if not user_query:
+#             return jsonify({"error": "Empty query, please provide a valid query."}), 400
+
+#         chat_history = []  # Initialize chat history
+#         qna_response = find_similar_qna(user_query, qna_data)
+        
+#         if qna_response:
+#             chat_history.append(f"User: {user_query}\nAssistant: {qna_response}")
+#             return jsonify({"response": qna_response})
+
+#         if not is_valid_query(user_query):
+#             generic_response = "I'm sorry, I can't respond to that."
+#             chat_history.append(f"User: {user_query}\nAssistant: {generic_response}")
+#             return jsonify({"response": generic_response})
+
+#         query_engine = index.as_query_engine()
+#         response_chunks = query_engine.retrieve(user_query)
+#         response = synthesize_response_with_prompt(user_query, response_chunks, "\n".join(chat_history))
+        
+#         chat_history.append(f"User: {user_query}\nAssistant: {response}")
+#         return jsonify({"response": response})
+
+#     except Exception as e:
+#         return jsonify({"error": f"Failed to process query: {str(e)}"}), 500
+
+# # Run the Flask application
+# if __name__ == '__main__':
+#     app.run(debug=True, port=7072, host="0.0.0.0")
+
